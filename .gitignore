@@ -2,3 +2,6 @@
 .ccls-cache/
 .direnv/
 .ccls
+.cache/
+aseprite/exports/
+include/assets/
