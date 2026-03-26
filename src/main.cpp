@@ -2,10 +2,8 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 
-#include "hud.xbm"
-
-#include "bitmap.hpp"
-#include "compiled-assets.hpp"
+#include "assets/hud_monochrome.xbm"
+#include "assets/smiley.xbm"
 
 // requires macro-expanded arguments
 #define U8G2_T6963_Exp(W, H, S) U8G2_T6963_ ## W ## X ## H ## _ ## S ## _8080
@@ -55,11 +53,8 @@ U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 
 // DISPLAY SETUP ===============================================================
 
-BitmapImage *bmp;
-
 void setup() {
   Serial.begin(9600);
-  bmp = new BitmapImage(__assets_hud_bmp, __assets_hud_bmp_len);
   u8g2.begin();
   u8g2.setFont(u8g2_font_ncenB08_tr);
 }
@@ -70,7 +65,8 @@ void loop() {
   u8g2.clearBuffer();
 
   u8g2.setColorIndex(0); // otherwise inverted
-  u8g2.drawXBMP(0, 0, hud_width, hud_height, hud_bits);
+  u8g2.drawXBMP(0, 0, hud_monochrome_width, hud_monochrome_height, (unsigned char*) hud_monochrome_bits);
+  u8g2.drawXBMP(0, 0, smiley_width, smiley_height, (unsigned char*) smiley_bits);
 
   u8g2.sendBuffer();
 
