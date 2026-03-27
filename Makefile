@@ -7,7 +7,7 @@ EXPORTS := $(SPRITES:$(SPRITES_DIR)/%.aseprite=$(EXPORTS_DIR)/%.png)
 ASSETS  := $(SPRITES:$(SPRITES_DIR)/%.aseprite=$(ASSETS_DIR)/%.xbm)
 
 all: assets
-	echo $(ASSETS)
+	pio run
 
 assets: $(ASSETS)
 
@@ -21,8 +21,11 @@ $(ASSETS_DIR)/%.xbm: $(EXPORTS_DIR)/%.png
 	mkdir -p $(ASSETS_DIR)
 	magick $< $@
 
-.PHONY: all assets exports clean
+.PHONY: all assets exports clean upload
 
 clean:
 	rm -rf $(EXPORTS_DIR)
 	rm -rf $(ASSETS_DIR)
+
+upload: assets
+	pio run --target upload

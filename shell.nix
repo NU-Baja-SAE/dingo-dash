@@ -4,5 +4,6 @@ pkgs.mkShell {
     platformio
     ccls
     clang-tools
+    gnumake
   ];
 }
