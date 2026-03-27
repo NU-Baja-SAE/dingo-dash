@@ -64,9 +64,12 @@ void setup() {
 void loop() {
   u8g2.clearBuffer();
 
-  u8g2.setColorIndex(0); // otherwise inverted
+  u8g2.setColorIndex(0); // for some reason, we need to invert colors for drawing images
   u8g2.drawXBMP(0, 0, hud_monochrome_width, hud_monochrome_height, (unsigned char*) hud_monochrome_bits);
   u8g2.drawXBMP(0, 0, smiley_width, smiley_height, (unsigned char*) smiley_bits);
+
+  u8g2.setColorIndex(1);
+  u8g2.drawStr(20, 20, "hello world??");
 
   u8g2.sendBuffer();
 
