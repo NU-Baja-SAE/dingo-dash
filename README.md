@@ -24,6 +24,6 @@ Once you have installed the prerequisites (i.e., `aseprite` and `magick` are in 
 3. Design your sprite!
 4. Save your sprite as a `.aseprite` file in `aseprite/sprites/`
 4. Run `make assets`. This will use aseprite to export all of the sprites in `aseprite/sprites/` as `.png` images, and then imagemagick to export all of these `.png` images as `.xbm` images in `include/assets`. 
-5. You can now include the generated `.xbm` files directly in your C/C++ source code.
+5. You can now #include the generated `.xbm` files directly in your C/C++ source code.
 
 > Please, only use alphabetical characters and underscores in sprite names! Otherwise, generated assets will have invalid identifiers.
