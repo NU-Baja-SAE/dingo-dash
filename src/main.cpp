@@ -1,13 +1,16 @@
-// hardware
 #include <Arduino.h>
 #include <U8g2lib.h>
 
 #include "assets/hud_monochrome.xbm"
 #include "assets/smiley.xbm"
+
+#include "sprite.hpp"
 #include "vec.hpp"
 
+// DISPLAY INIT ================================================================
+
 // requires macro-expanded arguments
-#define U8G2_T6963_Exp(W, H, S) U8G2_T6963_ ## W ## X ## H ## _ ## S ## _8080
+#define U8G2_T6963_Exp(W, H, S) U8G2_T6963_##W##X##H##_##S##_8080
 #define U8G2_T6963(W, H, S) U8G2_T6963_Exp(W, H, S)
 
 // display spec ----------------------------------------------------------------
@@ -37,14 +40,10 @@
 #define d5 33
 #define d6 18
 #define d7 19
-// "write" for the 8080 interface (WR)
-#define wr 12
-// chip select line (CS)
-#define cs 14
-// data/command selection line (DC)
-#define dc 27
-// reset line
-#define reset 26
+#define wr 12    // "write" for the 8080 interface (WR)
+#define cs 14    // chip select line (CS)
+#define dc 27    // data/command selection line (DC)
+#define reset 26 // reset line
 
 // rd shouldn't be floating, connect to 3.3v
 
@@ -52,7 +51,11 @@
 
 U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 
+// DATA ========================================================================
+
 // DISPLAY SETUP ===============================================================
+
+Sprite hud(IMAGE(hud_monochrome), Vec2());
 
 void setup() {
   Serial.begin(9600);
@@ -60,16 +63,15 @@ void setup() {
   u8g2.setFont(u8g2_font_ncenB08_tr);
 }
 
-// GAME LOOP ===================================================================
+// RENDER LOOP =================================================================
 
 void loop() {
   u8g2.clearBuffer();
+  hud.posn += Vec2(1, 2);
+  hud.posn.x %= 100;
+  hud.posn.y %= 100;
+  hud.draw(u8g2);
 
-  u8g2.setColorIndex(0); // for some reason, we need to invert colors for drawing images
-  u8g2.drawXBMP(0, 0, hud_monochrome_width, hud_monochrome_height, (unsigned char*) hud_monochrome_bits);
-  u8g2.drawXBMP(0, 0, smiley_width, smiley_height, (unsigned char*) smiley_bits);
-
-  u8g2.setColorIndex(1);
   u8g2.drawStr(20, 20, "hello world??");
 
   u8g2.sendBuffer();
