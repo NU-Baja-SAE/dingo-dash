@@ -1,6 +1,6 @@
-# display-board-test
+# dingo-dash
 
-Testing out embedded programming with an ESP32 and T6963C (Toshiba) 240x128 Graphic LCD
+LCD dashboard using u8g2 alongside an ESP32 and T6963C (Toshiba) 240x128 Graphic LCD
 
 ## Datasheets
 
