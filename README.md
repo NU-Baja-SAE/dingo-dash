@@ -13,8 +13,8 @@ u8glib uses images in the `xbm` format, which can be included directly in C/C++ 
 ### Prerequisites
 To create an image that can be loaded with u8glib, you will need:
 
-- *aseprite* for creating the image with the proper color mode and exporting as a `.png` (alternatives: gimp, photoshop)
-- *imagemagick* for converting the aseprite exports to the `.xbm` format
+- [aseprite](https://github.com/aseprite/aseprite) for creating the image with the proper color mode and exporting as a `.png` (alternatives: gimp, photoshop)
+- [imagemagick](https://github.com/ImageMagick/ImageMagick) for converting the aseprite exports to the `.xbm` format
 
 ### Adding new images
 Once you have installed the prerequisites (i.e., `aseprite` and `imagemagick` are in your PATH):
