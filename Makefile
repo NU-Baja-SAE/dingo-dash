@@ -19,7 +19,7 @@ $(EXPORTS_DIR)/%.png: $(SPRITES_DIR)/%.aseprite
 
 $(ASSETS_DIR)/%.xbm: $(EXPORTS_DIR)/%.png
 	mkdir -p $(ASSETS_DIR)
-	magick $< $@
+	ffmpeg -i $< $@
 
 .PHONY: all assets exports clean
 
