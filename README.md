@@ -4,8 +4,8 @@ LCD dashboard using u8g2 alongside an ESP32 and T6963C (Toshiba) 240x128 Graphic
 
 ## Datasheets
 
-Display module [datasheet](https://www.buydisplay.com/download/manual/ERM240128-2_Series_Datasheet.pdf)
-Controller IC (RA6963) [datasheet](https://www.buydisplay.com/download/ic/RA6963.pdf)
+- Display module [datasheet](https://www.buydisplay.com/download/manual/ERM240128-2_Series_Datasheet.pdf)
+- Controller IC (RA6963) [datasheet](https://www.buydisplay.com/download/ic/RA6963.pdf)
 
 ## Assets
 u8glib uses images in the `xbm` format, which can be included directly in C/C++ source code. 
