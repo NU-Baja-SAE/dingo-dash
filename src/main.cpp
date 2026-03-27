@@ -4,6 +4,7 @@
 
 #include "assets/hud_monochrome.xbm"
 #include "assets/smiley.xbm"
+#include "vec.hpp"
 
 // requires macro-expanded arguments
 #define U8G2_T6963_Exp(W, H, S) U8G2_T6963_ ## W ## X ## H ## _ ## S ## _8080
