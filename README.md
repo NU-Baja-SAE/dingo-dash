@@ -23,9 +23,5 @@ Once you have installed the prerequisites (i.e., `aseprite` and `imagemagick` ar
 2. Import the monochrome palette at `aseprite/resources/palette.aseprite` by clicking the burger menu > load palette
 3. Design your sprite!
 4. Save your sprite as a `.aseprite` file in `aseprite/sprites/`
-4. Run `make assets`. This will use aseprite to export all of the sprites in `aseprite/sprites/` as `.png` images, and then imagemagick to export all of these `.png` images as `.xbm` images in `include/assets`. 
+4. Run `./generate_assets.sh`. This will use aseprite to export all of the sprites in `aseprite/sprites/` as `.png` images, and then imagemagick to export all of these `.png` images as `.xbm` images in `include/assets`. 
 5. You can now #include the generated `.xbm` files directly in your C/C++ source code.
-
-Alternatively, you can use `make` and `make upload` to include asset builds in the pio build and upload processes (`pio run` and `pio run --target upload`, respectively).
-
-> Please, only use alphabetical characters and underscores in sprite names! Otherwise, generated assets will have invalid identifiers.
