@@ -1,9 +1,7 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 
-#include "assets/hud_monochrome.xbm"
-#include "assets/smiley.xbm"
-
+#include "assets.hpp"
 #include "sprite.hpp"
 #include "vec.hpp"
 
@@ -53,8 +51,6 @@ U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 
 // DISPLAY SETUP ===============================================================
 
-Sprite hud(IMAGE(hud_monochrome), Vec2());
-
 void setup() {
   Serial.begin(9600);
   u8g2.begin();
@@ -63,14 +59,49 @@ void setup() {
 
 // RENDER LOOP =================================================================
 
+#define LEN(arr) sizeof(arr) / sizeof(*arr)
+
+SingleFrameSprite bg(image_background, Vec2());
+
+// clang-format off
+MultiFrameSprite comms(
+  (Image *)frames_comms, LEN(frames_comms), 0, Vec2(80, 0));
+MultiFrameSprite gas(
+  (Image *)frames_gas, LEN(frames_gas), 0, Vec2(190, 75));
+MultiFrameSprite thermometer(
+  (Image *)frames_thermometer, LEN(frames_thermometer), 0, Vec2(188, 33));
+MultiFrameSprite mode_manual(
+  (Image *)frames_mode_manual, LEN(frames_mode_manual), 0, Vec2(11, 84));
+MultiFrameSprite mode_torque(
+  (Image *)frames_mode_torque, LEN(frames_mode_torque), 0, Vec2(11, 68));
+MultiFrameSprite mode_power(
+  (Image *)frames_mode_power, LEN(frames_mode_power), 0, Vec2(19, 52));
+// clang-format on
+
+// dummy constants
+constexpr float cvt_temp_danger_zone = 150.;
+
+// dummy vars
+float gas_level = 0.4;
+float cvt_temp = 30.;
+
 void loop() {
   u8g2.clearBuffer();
-  hud.posn += Vec2(1, 2);
-  hud.posn.x %= 100;
-  hud.posn.y %= 100;
-  hud.draw(u8g2);
+  bg.draw(u8g2);
 
-  u8g2.drawStr(20, 20, "hello world??");
+  thermometer.current_frame += 1;
+  gas.current_frame -= 1;
+  mode_manual.current_frame += 1;
+  mode_torque.current_frame += 1;
+  mode_power.current_frame += 1;
+  comms.current_frame += 1;
+
+  thermometer.draw(u8g2);
+  gas.draw(u8g2);
+  mode_manual.draw(u8g2);
+  mode_torque.draw(u8g2);
+  mode_power.draw(u8g2);
+  comms.draw(u8g2);
 
   u8g2.sendBuffer();
 
