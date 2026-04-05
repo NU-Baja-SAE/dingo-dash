@@ -1,11 +1,12 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 
-#include "assets/hud_monochrome.xbm"
-#include "assets/smiley.xbm"
+#include <assets/thermometer16.xbm>
 
 #include "sprite.hpp"
 #include "vec.hpp"
+#include "BajaCan.h"
+#include "can_data.hpp"
 
 // DISPLAY INIT ================================================================
 
@@ -53,26 +54,29 @@ U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 
 // DISPLAY SETUP ===============================================================
 
-Sprite hud(IMAGE(hud_monochrome), Vec2());
+Sprite hud(IMAGE(thermometer16), Vec2());
 
 void setup() {
   Serial.begin(9600);
   u8g2.begin();
   u8g2.setFont(u8g2_font_ncenB08_tr);
+  init();
 }
 
 // RENDER LOOP =================================================================
 
 void loop() {
+  Can_Data data = read_input();
   u8g2.clearBuffer();
   hud.posn += Vec2(1, 2);
   hud.posn.x %= 100;
   hud.posn.y %= 100;
   hud.draw(u8g2);
-
-  u8g2.drawStr(20, 20, "hello world??");
+  u8g2.drawStr(20, 20, String(data.engine_rpm, 2).c_str());
+  //u8g2.drawStr(20, 20, "Hello, world!");
 
   u8g2.sendBuffer();
 
   delay(1000);
 }
+
