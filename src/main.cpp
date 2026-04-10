@@ -57,21 +57,23 @@ U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 Sprite hud(IMAGE(thermometer16), Vec2());
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   u8g2.begin();
   u8g2.setFont(u8g2_font_ncenB08_tr);
-  init();
+  can_init();
 }
 
 // RENDER LOOP =================================================================
 
 void loop() {
   Can_Data data = read_input();
+  Serial.printf("RPM: %.2f\n", data.engine_rpm);
   u8g2.clearBuffer();
   hud.posn += Vec2(1, 2);
   hud.posn.x %= 100;
   hud.posn.y %= 100;
   hud.draw(u8g2);
+  //Serial.println(data.engine_rpm);
   u8g2.drawStr(20, 20, String(data.engine_rpm, 2).c_str());
   //u8g2.drawStr(20, 20, "Hello, world!");
 

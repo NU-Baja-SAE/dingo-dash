@@ -10,4 +10,4 @@ struct Can_Data {
 };
 
 Can_Data read_input();
-void init();
+void can_init();
