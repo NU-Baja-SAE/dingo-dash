@@ -59,9 +59,11 @@ void setup() {
 
 // RENDER LOOP =================================================================
 
-#define LEN(arr) sizeof(arr) / sizeof(*arr)
+#define LEN(arr) (sizeof(arr) / sizeof(*arr))
+#define CLAMP(x, y, z) min(max(x, y), z)
 
 SingleFrameSprite bg(image_background, Vec2());
+SingleFrameSprite knob(image_knob, Vec2(118, 76));
 
 // clang-format off
 MultiFrameSprite comms(
@@ -79,18 +81,38 @@ MultiFrameSprite mode_power(
 // clang-format on
 
 // dummy constants
-constexpr float cvt_temp_danger_zone = 150.;
+constexpr float temp_danger_zone = 150.;
 
-// dummy vars
-float gas_level = 0.4;
-float cvt_temp = 30.;
+// gas_level is a float in the range [0, 1]. Outside this range will be clamped
+size_t get_gas_frame(float gas_percentage) {
+  return CLAMP(
+    // cast to int to avoid underflow
+    (int)roundf(LEN(frames_gas) * gas_percentage),
+    0,
+    (int)(LEN(frames_gas) - 1)
+  );
+}
+
+// temp_fahrenheit is a float in the range [0, temp_danger_zone]. Outside this
+// range will be clamped
+size_t get_thermometer_frame(float temp_fahrenheit) {
+  return CLAMP(
+    (int)roundf(LEN(frames_thermometer) * (temp_fahrenheit / temp_danger_zone)),
+    0,
+    (int)(LEN(frames_thermometer) - 1)
+  );
+}
+
+float x = 0.0;
 
 void loop() {
+  x += 0.2;
   u8g2.clearBuffer();
   bg.draw(u8g2);
 
-  thermometer.current_frame += 1;
-  gas.current_frame -= 1;
+  thermometer.current_frame = get_thermometer_frame((sin(x) / 2 + .5) * 160);
+  gas.current_frame = get_gas_frame(cos(x) / 2 + .5);
+
   mode_manual.current_frame += 1;
   mode_torque.current_frame += 1;
   mode_power.current_frame += 1;
@@ -103,7 +125,9 @@ void loop() {
   mode_power.draw(u8g2);
   comms.draw(u8g2);
 
+  knob.draw(u8g2);
+
   u8g2.sendBuffer();
 
-  delay(1000);
+  delay(200);
 }
