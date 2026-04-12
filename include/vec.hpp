@@ -2,19 +2,57 @@
 
 #include <Arduino.h>
 
-struct Vec2 {
-  int32_t x;
-  int32_t y;
+template <typename T> struct Vec2 {
+  T x;
+  T y;
 
-  Vec2(int32_t _x, int32_t _y) : x(_x), y(_y) {};
+  Vec2(T _x, T _y) : x(_x), y(_y) {};
   Vec2() : x(0), y(0) {};
 
-  Vec2 &operator+=(const Vec2 &rhs);
-  friend Vec2 operator+(const Vec2 &lhs, const Vec2 &rhs);
+  T &operator+=(const Vec2 &rhs) {
+    this->x += rhs.x;
+    this->y += rhs.y;
+    return *this;
+  }
 
-  Vec2 &operator-=(const Vec2 &rhs);
-  friend Vec2 operator-(const Vec2 &lhs, const Vec2 &rhs);
+  friend Vec2<T> operator+(const Vec2<T> &lhs, const Vec2<T> &rhs) {
+    return Vec2(lhs.x + rhs.x, lhs.y + rhs.y);
+  }
 
-  Vec2 &operator*=(const int32_t s);
-  friend Vec2 operator*(const Vec2 &v, const int32_t s);
+  T &operator-=(const Vec2 &rhs) {
+    this->x -= rhs.x;
+    this->y -= rhs.y;
+    return *this;
+  }
+
+  friend Vec2<T> operator-(const Vec2<T> &lhs, const Vec2<T> &rhs) {
+    return Vec2(lhs.x - rhs.x, lhs.y - rhs.y);
+  }
+
+  T &operator*=(const T s) {
+    this->x *= s;
+    this->y *= s;
+    return *this;
+  }
+
+  friend Vec2<T> operator*(const Vec2<T> &v, const T s) {
+    return Vec2(v.x * s, v.y * s);
+  }
+
+  float magnitude() const {
+    return sqrt(pow((float)this->x, 2) + pow((float)this->y, 2));
+  }
+
+  Vec2<float> normalized() const {
+    float mag = this->magnitude();
+    return Vec2<float>(this->x / mag, this->y / mag);
+  }
+
+  template <typename Into> Vec2<Into> cast() {
+    return Vec2<Into>((Into)this->x, (Into)this->y);
+  }
+
+  template <typename Into> Vec2<Into> round() {
+    return Vec2<Into>((Into)this->x + 0.5, (Into)this->y + 0.5);
+  }
 };

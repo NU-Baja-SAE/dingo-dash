@@ -2,10 +2,13 @@
 #include <U8g2lib.h>
 
 #include "assets.hpp"
+#include "drawing.hpp"
 #include "sprite.hpp"
 #include "vec.hpp"
 
-// DISPLAY INIT ================================================================
+//   +----------------+
+//  /  DISPLAY INIT  / =========================================================
+// +----------------+
 
 // requires macro-expanded arguments
 #define U8G2_T6963_Exp(W, H, S) U8G2_T6963_##W##X##H##_##S##_8080
@@ -49,7 +52,9 @@
 
 U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 
-// DISPLAY SETUP ===============================================================
+//   +----------------+
+//  /  DISPLAY SETUP / =========================================================
+// +----------------+
 
 void setup() {
   Serial.begin(9600);
@@ -57,31 +62,51 @@ void setup() {
   u8g2.setFont(u8g2_font_ncenB08_tr);
 }
 
-// RENDER LOOP =================================================================
+//   +---------------+
+//  /  RENDER LOOP  / ==========================================================
+// +---------------+
+
+// helper macros ---------------------------------------------------------------
 
 #define LEN(arr) (sizeof(arr) / sizeof(*arr))
 #define CLAMP(x, y, z) min(max(x, y), z)
+#define LERP(x, y, f) ((x) + (((y) - (x)) * (f)))
 
-SingleFrameSprite bg(image_background, Vec2());
-SingleFrameSprite knob(image_knob, Vec2(118, 76));
+// constants -------------------------------------------------------------------
+
+// ... timing
+const float dt = 200; // millis per frame
+// ... needle
+const float max_speed = 50.;
+const float idle_needle_angle_deg = 200.;
+const float max_speed_needle_angle_deg = -20.;
+const Vec2<int16_t> needle_origin(120, 78);
+const float needle_base_width = 5.;
+const float needle_length = 30.;
+// ... thermometer
+const float temp_danger_zone = 150.;
+
+// sprites ---------------------------------------------------------------------
+
+SingleFrameSprite bg(image_background, Vec2<int16_t>());
+SingleFrameSprite knob(image_knob, Vec2<int16_t>(118, 76));
 
 // clang-format off
 MultiFrameSprite comms(
-  (Image *)frames_comms, LEN(frames_comms), 0, Vec2(80, 0));
+  (Image *)frames_comms, LEN(frames_comms), 0, Vec2<int16_t>(80, 0));
 MultiFrameSprite gas(
-  (Image *)frames_gas, LEN(frames_gas), 0, Vec2(190, 75));
+  (Image *)frames_gas, LEN(frames_gas), 0, Vec2<int16_t>(190, 75));
 MultiFrameSprite thermometer(
-  (Image *)frames_thermometer, LEN(frames_thermometer), 0, Vec2(188, 33));
+  (Image *)frames_thermometer, LEN(frames_thermometer), 0, Vec2<int16_t>(188, 33));
 MultiFrameSprite mode_manual(
-  (Image *)frames_mode_manual, LEN(frames_mode_manual), 0, Vec2(11, 84));
+  (Image *)frames_mode_manual, LEN(frames_mode_manual), 0, Vec2<int16_t>(11, 84));
 MultiFrameSprite mode_torque(
-  (Image *)frames_mode_torque, LEN(frames_mode_torque), 0, Vec2(11, 68));
+  (Image *)frames_mode_torque, LEN(frames_mode_torque), 0, Vec2<int16_t>(11, 68));
 MultiFrameSprite mode_power(
-  (Image *)frames_mode_power, LEN(frames_mode_power), 0, Vec2(19, 52));
+  (Image *)frames_mode_power, LEN(frames_mode_power), 0, Vec2<int16_t>(19, 52));
 // clang-format on
 
-// dummy constants
-constexpr float temp_danger_zone = 150.;
+// drawing helper fns ----------------------------------------------------------
 
 // gas_level is a float in the range [0, 1]. Outside this range will be clamped
 size_t get_gas_frame(float gas_percentage) {
@@ -103,27 +128,52 @@ size_t get_thermometer_frame(float temp_fahrenheit) {
   );
 }
 
-float x = 0.0;
+float get_needle_angle_deg(float speed) {
+  return LERP(
+    idle_needle_angle_deg, max_speed_needle_angle_deg, speed / max_speed
+  );
+}
+
+void draw_needle(U8G2 u8g2, float speed) {}
+
+// render loop -----------------------------------------------------------------
+
+float t = 0.0;
+float speed = 0.0;
 
 void loop() {
-  x += 0.2;
+  t += 0.2;
+
   u8g2.clearBuffer();
   bg.draw(u8g2);
 
-  thermometer.current_frame = get_thermometer_frame((sin(x) / 2 + .5) * 160);
-  gas.current_frame = get_gas_frame(cos(x) / 2 + .5);
+  // setup data for drawing
+  thermometer.current_frame
+    = get_thermometer_frame((sin(t * 0.2) / 2 + .5) * 160);
+  gas.current_frame = get_gas_frame(cos(t * 0.5) / 2 + .5);
 
   mode_manual.current_frame += 1;
   mode_torque.current_frame += 1;
   mode_power.current_frame += 1;
   comms.current_frame += 1;
 
+  float needle_angle = get_needle_angle_deg((sin(t * 0.3) / 2 + .5) * 50);
+
+  // draw everything
   thermometer.draw(u8g2);
   gas.draw(u8g2);
   mode_manual.draw(u8g2);
   mode_torque.draw(u8g2);
   mode_power.draw(u8g2);
   comms.draw(u8g2);
+
+  draw_needle_polar(
+    u8g2,
+    needle_origin,
+    needle_length,
+    get_needle_angle_deg(speed),
+    needle_base_width
+  );
 
   knob.draw(u8g2);
 
