@@ -59,7 +59,6 @@ U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 void setup() {
   Serial.begin(9600);
   u8g2.begin();
-  u8g2.setFont(u8g2_font_ncenB08_tr);
 }
 
 //   +---------------+
@@ -75,16 +74,24 @@ void setup() {
 // constants -------------------------------------------------------------------
 
 // ... timing
-const float dt = 200; // millis per frame
+const float dt = 100; // millis per frame
 // ... needle
 const float max_speed = 50.;
 const float idle_needle_angle_deg = 200.;
 const float max_speed_needle_angle_deg = -20.;
 const Vec2<int16_t> needle_origin(120, 78);
-const float needle_base_width = 5.;
-const float needle_length = 30.;
+const float needle_base_width = 6.;
+const float needle_length = 40.;
+// ... speed
+const Vec2<int16_t> speed_text_pos(105, 60);
 // ... thermometer
 const float temp_danger_zone = 150.;
+const Vec2<int16_t> temp_text_pos(205, 48);
+// ... gas
+const Vec2<int16_t> gas_text_pos(219, 94);
+// ... fonts
+const auto small_font = u8g2_font_3x5im_te;
+const auto big_font = u8g2_font_boutique_bitmap_9x9_bold_tn;
 
 // sprites ---------------------------------------------------------------------
 
@@ -138,26 +145,31 @@ void draw_needle(U8G2 u8g2, float speed) {}
 
 // render loop -----------------------------------------------------------------
 
+// elapsed time, seconds
+// TODO remove
 float t = 0.0;
-float speed = 0.0;
 
 void loop() {
-  t += 0.2;
+  t += dt / 1000.;
+
+  auto temp_val = (sin(t * 0.2) / 2 + .5) * 160;
+  auto gas_val = cos(t * 0.5) / 2 + .5;
+  auto speed_val = (sin(t * 0.3) / 2 + .5) * 50;
 
   u8g2.clearBuffer();
   bg.draw(u8g2);
 
   // setup data for drawing
-  thermometer.current_frame
-    = get_thermometer_frame((sin(t * 0.2) / 2 + .5) * 160);
-  gas.current_frame = get_gas_frame(cos(t * 0.5) / 2 + .5);
+  thermometer.current_frame = get_thermometer_frame(temp_val);
+  gas.current_frame = get_gas_frame(gas_val);
 
-  mode_manual.current_frame += 1;
-  mode_torque.current_frame += 1;
-  mode_power.current_frame += 1;
-  comms.current_frame += 1;
+  mode_manual.current_frame = ((int)t) % 3 != 0;
+  mode_torque.current_frame = ((int)t) % 3 != 1;
+  mode_power.current_frame = ((int)t) % 3 != 2;
 
-  float needle_angle = get_needle_angle_deg((sin(t * 0.3) / 2 + .5) * 50);
+  comms.current_frame = ((int)t) % 2 == 0;
+
+  float needle_angle = get_needle_angle_deg(speed_val);
 
   // draw everything
   thermometer.draw(u8g2);
@@ -167,17 +179,27 @@ void loop() {
   mode_power.draw(u8g2);
   comms.draw(u8g2);
 
+  char temp_str_buf[8];
+  char gas_str_buf[8];
+  char speed_str_buf[8];
+
+  snprintf(temp_str_buf, 8, "%.0f\xB0", temp_val);
+  snprintf(gas_str_buf, 8, "%.0f%%", gas_val * 100);
+  snprintf(speed_str_buf, 8, "%05.2f%%", speed_val);
+
+  u8g2.setFont(small_font);
+  u8g2.drawStr(temp_text_pos.x, temp_text_pos.y, temp_str_buf);
+  u8g2.drawStr(gas_text_pos.x, gas_text_pos.y, gas_str_buf);
+  u8g2.setFont(big_font);
+  u8g2.drawStr(speed_text_pos.x, speed_text_pos.y, speed_str_buf);
+
   draw_needle_polar(
-    u8g2,
-    needle_origin,
-    needle_length,
-    get_needle_angle_deg(speed),
-    needle_base_width
+    u8g2, needle_origin, needle_length, needle_angle, needle_base_width
   );
 
   knob.draw(u8g2);
 
   u8g2.sendBuffer();
 
-  delay(200);
+  delay(dt);
 }
