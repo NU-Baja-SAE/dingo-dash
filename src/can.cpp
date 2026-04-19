@@ -29,7 +29,6 @@ void init() {
 CanInput read() {
   CanMessage message;
   while (can.readMessage(message, 0) == ESP_OK) {
-    Serial.printf("Received CAN message with ID: 0x%X\n", message.getId());
     // clang-format off
     switch (message.getFrame().identifier) {
       case CanDatabase::ENGINE_RPM.id:
@@ -60,6 +59,18 @@ CanInput read() {
     // clang-format on
   }
   return current_state;
+}
+
+void debug(CanInput &data) {
+  Serial.printf("Engine RPM: %.2f\n", data.engine_rpm);
+  Serial.printf("Secondary RPM: %.2f\n", data.secondary_rpm);
+  Serial.printf("Mode: %d\n", data.mode);
+  Serial.printf("Status: %d\n", data.status);
+  Serial.printf("Temperature: %.2f\n", data.temperature);
+  Serial.printf("Motor setpoint: %d\n", data.motor_setpoint);
+
+  Serial.printf("Fuel level: %.2f\n", data.fuel_level);
+  Serial.printf("Linear speed: %.2f\n", data.linear_speed);
 }
 
 } // namespace can

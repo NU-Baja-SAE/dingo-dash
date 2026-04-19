@@ -67,16 +67,7 @@ void setup() {
 
 void loop() {
   can::CanInput data = can::read();
-
-  Serial.printf("Engine RPM: %.2f\n", data.engine_rpm);
-  Serial.printf("Secondary RPM: %.2f\n", data.secondary_rpm);
-  Serial.printf("Mode: %d", data.mode);
-  Serial.printf("Status: %d", data.status);
-  Serial.printf("Temperature: %.2f", data.temperature);
-  Serial.printf("Motor setpoint: %d", data.motor_setpoint);
-
-  Serial.printf("Fuel level: %.2f", data.fuel_level);
-  Serial.printf("Linear speed: %.2f", data.linear_speed);
+  can::debug(data);
 
   u8g2.clearBuffer();
   hud.posn += Vec2(1, 2);

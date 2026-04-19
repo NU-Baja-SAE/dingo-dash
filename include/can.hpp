@@ -24,5 +24,6 @@ struct CanOutput {
 void init();
 CanInput read();
 void write(CanOutput output);
+void debug(CanInput &data);
 
 }; // namespace can
