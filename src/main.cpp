@@ -2,6 +2,7 @@
 #include <U8g2lib.h>
 
 #include "assets.hpp"
+#include "can.hpp"
 #include "drawing.hpp"
 #include "sprite.hpp"
 #include "vec.hpp"
@@ -57,8 +58,9 @@ U8G2 u8g2(U8G2_R0, d0, d1, d2, d3, d4, d5, d6, d7, wr, cs, dc, reset);
 // +----------------+
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   u8g2.begin();
+  can::init();
 }
 
 //   +---------------+
@@ -150,8 +152,12 @@ void draw_needle(U8G2 u8g2, float speed) {}
 float t = 0.0;
 
 void loop() {
+  can::CanInput data = can::read();
+  can::debug(data);
+
   t += dt / 1000.;
 
+  // Dummy values (temporary)
   auto temp_val = (sin(t * 0.2) / 2 + .5) * 160;
   auto gas_val = cos(t * 0.5) / 2 + .5;
   auto speed_val = (sin(t * 0.3) / 2 + .5) * 50;
