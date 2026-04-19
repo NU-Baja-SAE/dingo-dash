@@ -8,7 +8,7 @@ namespace can {
 
 CanInput current_state;
 
-BajaCan can(GPIO_NUM_4, GPIO_NUM_5);
+BajaCan can(GPIO_NUM_5, GPIO_NUM_4);
 
 // Initialize the CAN
 void init() {
