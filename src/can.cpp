@@ -28,7 +28,7 @@ void init() {
 // Read all of the pending CAN messages and return the new state
 CanInput read() {
   CanMessage message;
-  while (can.readMessage(message, 10) == ESP_OK) {
+  while (can.readMessage(message, 0) == ESP_OK) {
     Serial.printf("Received CAN message with ID: 0x%X\n", message.getId());
     // clang-format off
     switch (message.getFrame().identifier) {
