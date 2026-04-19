@@ -3,10 +3,10 @@
 
 #include <assets/thermometer16.xbm>
 
+// #include "BajaCan.h"
+#include "can.hpp"
 #include "sprite.hpp"
 #include "vec.hpp"
-#include "BajaCan.h"
-#include "can_data.hpp"
 
 // DISPLAY INIT ================================================================
 
@@ -60,25 +60,32 @@ void setup() {
   Serial.begin(115200);
   u8g2.begin();
   u8g2.setFont(u8g2_font_ncenB08_tr);
-  can_init();
+  can::init();
 }
 
 // RENDER LOOP =================================================================
 
 void loop() {
-  Can_Data data = read_input();
-  Serial.printf("RPM: %.2f\n", data.engine_rpm);
+  can::CanInput data = can::read();
+
+  Serial.printf("Engine RPM: %.2f\n", data.engine_rpm);
+  Serial.printf("Secondary RPM: %.2f\n", data.secondary_rpm);
+  Serial.printf("Mode: %d", data.mode);
+  Serial.printf("Status: %d", data.status);
+  Serial.printf("Temperature: %.2f", data.temperature);
+  Serial.printf("Motor setpoint: %d", data.motor_setpoint);
+
+  Serial.printf("Fuel level: %.2f", data.fuel_level);
+  Serial.printf("Linear speed: %.2f", data.linear_speed);
+
   u8g2.clearBuffer();
   hud.posn += Vec2(1, 2);
   hud.posn.x %= 100;
   hud.posn.y %= 100;
   hud.draw(u8g2);
-  //Serial.println(data.engine_rpm);
   u8g2.drawStr(20, 20, String(data.engine_rpm, 2).c_str());
-  //u8g2.drawStr(20, 20, "Hello, world!");
 
   u8g2.sendBuffer();
 
   delay(1000);
 }
-
