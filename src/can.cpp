@@ -28,6 +28,7 @@ void init() {
 // Read all of the pending CAN messages and return the new state
 CanInput read() {
   CanMessage message;
+  Serial.printf(".");
   while (can.readMessage(message, 0) == ESP_OK) {
     // clang-format off
     switch (message.getFrame().identifier) {
@@ -57,8 +58,18 @@ CanInput read() {
         break;
     }
     // clang-format on
+    Serial.printf("got update:\n");
+    debug(current_state);
   }
   return current_state;
+}
+
+void write(CanOutput out) {
+  // clang-format off
+  can.writeMessage(CanMessage(CanDatabase::BRAKE_POT.id, out.brake_pot), 0);
+  can.writeMessage(CanMessage(CanDatabase::FRONT_LEFT_WHEEL_SPEED.id, out.front_left_wheel_speed), 0);
+  can.writeMessage(CanMessage(CanDatabase::FRONT_RIGHT_WHEEL_SPEED.id, out.front_right_wheel_speed), 0);
+  // clang-format on
 }
 
 void debug(CanInput &data) {

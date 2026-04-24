@@ -149,18 +149,13 @@ void draw_needle(U8G2 u8g2, float speed) {}
 
 // elapsed time, seconds
 // TODO remove
-float t = 0.0;
 
 void loop() {
   can::CanInput data = can::read();
-  can::debug(data);
 
-  t += dt / 1000.;
-
-  // Dummy values (temporary)
-  auto temp_val = (sin(t * 0.2) / 2 + .5) * 160;
-  auto gas_val = cos(t * 0.5) / 2 + .5;
-  auto speed_val = (sin(t * 0.3) / 2 + .5) * 50;
+  auto temp_val = data.temperature;
+  auto gas_val = data.fuel_level;
+  auto speed_val = data.linear_speed;
 
   u8g2.clearBuffer();
   bg.draw(u8g2);
@@ -169,11 +164,11 @@ void loop() {
   thermometer.current_frame = get_thermometer_frame(temp_val);
   gas.current_frame = get_gas_frame(gas_val);
 
-  mode_manual.current_frame = ((int)t) % 3 != 0;
-  mode_torque.current_frame = ((int)t) % 3 != 1;
-  mode_power.current_frame = ((int)t) % 3 != 2;
+  // mode_manual.current_frame = ((int)t) % 3 != 0;
+  // mode_torque.current_frame = ((int)t) % 3 != 1;
+  // mode_power.current_frame = ((int)t) % 3 != 2;
 
-  comms.current_frame = ((int)t) % 2 == 0;
+  // comms.current_frame = ((int)t) % 2 == 0;
 
   float needle_angle = get_needle_angle_deg(speed_val);
 
